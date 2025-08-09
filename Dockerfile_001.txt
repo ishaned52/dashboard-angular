@@ -1,0 +1,44 @@
+# Use Node 16 (best match for Angular 14)
+FROM node:16-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Add a new group and user
+RUN addgroup -S newgroup \
+    && adduser -D -G newgroup --no-create-home newuser
+
+# Set ownership of the /app directory to the new non-root user and group
+# ADD A SMALL COMMENT OR A SPACE HERE TO INVALIDATE CACHE IF NEEDED
+RUN chown -R newuser:newgroup /app # Added a comment or space to invalidate cache.
+# Alternatively, you can explicitly add a timestamp or unique string like:
+# RUN chown -R newuser:newgroup /app && echo $(date +%s)
+
+# Switch to the non-root user
+USER newuser
+
+# Set the HOME environment variable for newuser to /app
+ENV HOME=/app
+
+# Set npm cache directory and global install prefix
+ENV NPM_CONFIG_PREFIX=/app/.npm
+RUN mkdir -p /app/.npm && chown newuser:newgroup /app/.npm
+
+# Set npm temp directory
+ENV NPM_TMP=/app/.npm-tmp
+
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install --legacy-peer-deps
+
+# Copy rest of the project
+COPY . .
+
+# Install Angular CLI
+RUN npm install -g @angular/cli@14
+
+# Expose the port the app runs on
+EXPOSE 4200
+
+# Run the dev server
+CMD ["ng", "serve", "--host", "0.0.0.0"]
