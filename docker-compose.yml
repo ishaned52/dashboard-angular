@@ -15,5 +15,5 @@ services:
       - my-first-network   
 
 networks:
-  my-first-network:        
+  jenkins:        
     driver: bridge
