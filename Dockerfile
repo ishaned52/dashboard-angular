@@ -4,8 +4,12 @@ FROM node:16-alpine
 # Create app directory
 WORKDIR /app
 
+
 # Copy package files and install dependencies
 COPY package*.json ./
+
+RUN npm install -g npm@11.5.2
+
 RUN npm install --legacy-peer-deps
 
 # Copy rest of the project
